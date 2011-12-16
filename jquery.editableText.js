@@ -47,7 +47,7 @@
 			// Create edit/save buttons
 			this.buttons;
 			if ( options.showToolbar === 'after' || options.showToolbar === 'before' ) {
-				this.buttons = $( '<div>', { 'class': 'editableToolbar' } );
+				this.buttons = $( '<div>', { 'class': options.toolbarClass } );
 				options.showEdit && this.buttons.append( $( '<a>', { 'class': 'edit', href: '#', role: 'button', title: options.editTitle } ) );
 				options.showSave && this.buttons.append( $( '<a>', { 'class': 'save', href: '#', role: 'button', title: options.saveTitle } ) );
 				options.showCancel && this.buttons.append( $( '<a>', { 'class': 'cancel', href: '#', role: 'button', title: options.cancelTitle } ) );
@@ -124,7 +124,7 @@
 				this.value = this.value.substr( 0, this.value.length - 4 );
 			}
 			
-			$.isFunction( this.options.change ) && this.options.change.call( this.element[0], this.value, prevValue );
+			$.isFunction( this.options.change ) && this.options.change.call( this.element[ 0 ], this.element[ 0 ], this.value, prevValue );
 			this.element.trigger( 'change', [ this.value, prevValue ] );
 		},
 		
@@ -155,7 +155,7 @@
 			this.options.saveOnBlur && $( document ).bind( 'click', $.proxy( this._saveOnClickOutside, this ) );
 			
 			// Trigger callback/event
-			$.isFunction( this.options.startEditing ) && this.options.startEditing.call( this.element[0] );
+			$.isFunction( this.options.startEditing ) && this.options.startEditing.call( this.element[ 0 ], this.element[ 0 ] );
 			this.element.trigger( 'startEditing' );
 		},
 		
@@ -173,7 +173,7 @@
 			this.element.blur();
 			
 			// Trigger callback/event
-			$.isFunction( this.options.stopEditing ) && this.options.stopEditing.call( this.element[0] );
+			$.isFunction( this.options.stopEditing ) && this.options.stopEditing.call( this.element[ 0 ], this.element[ 0 ] );
 			this.element.trigger( 'stopEditing' );
 		},
 		
@@ -240,6 +240,10 @@
 		 * and can be disabled by setting this option to 'false' (bool).
 		 */
 		showToolbar: 'before',
+		/**
+		 * Class name for the toolbar
+		 */
+		toolbarClass: 'editableToolbar',
 		/**
 		 * The element relative to which the toolbar should be inserted (whether it's inserted 'before' or 'after'
 		 * is determined by 'showToolbar'). Defaults to the editable element.
