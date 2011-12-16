@@ -1,10 +1,10 @@
 /**
  * editableText plugin that uses contentEditable property (FF2 is not supported)
  * Project page - https://github.com/PaulUithol/editableText
- *
- * Supports the Showdown JS parser for markdown.
- *
- *
+ * 
+ * Supports the 'PageDown' JS parser for markdown; see http://code.google.com/p/pagedown/ .
+ * 
+ * 
  * Forked from http://github.com/valums/editableText, copyright (c) 2009 Andris Valums, http://valums.com
  * Licensed under the MIT license (http://valums.com/mit-license/)
  */
@@ -27,7 +27,7 @@
 			var dit = this;
 			this.element = $( element );
 			this.options = options;
-			this.useMarkdown = options.enableMarkdown && window.Showdown && this.element.data('markdown') != null;
+			this.useMarkdown = options.enableMarkdown && window.Markdown && this.element.data( 'markdown' ) != null;
 			
 			this.edit = $.proxy( this.edit, this );
 			this.save = $.proxy( this.save, this );
@@ -39,7 +39,8 @@
 			this.value = this.element.html();
 			
 			if ( this.useMarkdown ) {
-				this.converter = new Showdown.converter();
+				// Use 'getSanitizingConverter' if available; fall back to the regular converter.
+				this.converter = Markdown.getSanitizingConverter && Markdown.getSanitizingConverter() || new Markdown.Converter();
 				this._setContent( this.value );
 			}
 			
@@ -51,8 +52,9 @@
 				options.showSave && this.buttons.append( $( '<a>', { 'class': 'save', href: '#', role: 'button', title: options.saveTitle } ) );
 				options.showCancel && this.buttons.append( $( '<a>', { 'class': 'cancel', href: '#', role: 'button', title: options.cancelTitle } ) );
 				
-				// Insert the toolbar 'after' or 'before'
-				this.element[ options.showToolbar ]( this.buttons );
+				// Insert the toolbar 'after' or 'before' the chosen element
+				var element = options.insertToolbarAt && $( options.insertToolbarAt ) || this.element;
+				element[ options.showToolbar ]( this.buttons );
 				
 				this.buttons.css( { 'zIndex': ( parseInt( this.element.css('zIndex'), 10 ) || 0 ) + 1 } );
 				
@@ -223,7 +225,6 @@
     };
 	
 	$.fn.editableText.defaults = {
-		
 		/**
 		 * Enable markdown if possible. If enabled, editables that have the attribute 'data-markdown'
 		 * will be treated as markdown (requires showdown.js to be loaded).
@@ -235,21 +236,26 @@
 		 */
 		newlinesEnabled : false,
 		/**
-		 * Show options for the toolbar. The toolbar can be inserted 'before' or 'after', and disabled by setting
-		 * this option to 'false' (bool).
+		 * Show options for the toolbar. The toolbar can be inserted 'before' or 'after' the editable element,
+		 * and can be disabled by setting this option to 'false' (bool).
 		 */
 		showToolbar: 'before',
 		/**
-		 * Show options for individual toolbar buttons
+		 * The element relative to which the toolbar should be inserted (whether it's inserted 'before' or 'after'
+		 * is determined by 'showToolbar'). Defaults to the editable element.
+		 */
+		insertToolbarAt: null,
+		/**
+		 * Show or hide for individual toolbar buttons
 		 */
 		showCancel: true,
 		showEdit: true,
 		showSave: true,
 		/**
 		 * Adjust the top margin for the 'editableToolbar' to the margin on the editable element.
-		 * Useful for headings, etc.
+		 * Useful for headings and such.
 		 */
-		compensateTopMargin: true,
+		compensateTopMargin: false,
 		/**
 		 * Titles for the 'edit', 'save' and 'cancel' buttons
 		 */
