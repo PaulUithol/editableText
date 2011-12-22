@@ -147,16 +147,19 @@
 		 */
 		_startEditing: function() {
 			if ( this.options.showToolbar ) {
-				this.buttons.children().show();
+				this.buttons
+					.addClass( 'editing' )
+					.children().show();
+				
 				this.editButton.hide();
 			}
 			
-			this.element.attr( 'contenteditable', 'true' ).focus();
+			this.element.attr( 'contenteditable', 'true' );
 			this.options.saveOnBlur && $( document ).bind( 'click', $.proxy( this._saveOnClickOutside, this ) );
 			
 			// Trigger callback/event
 			$.isFunction( this.options.startEditing ) && this.options.startEditing.call( this.element[ 0 ], this.element );
-			this.element.trigger( 'startEditing' );
+			this.element.trigger( 'startEditing' ).focus();
 		},
 		
 		/**
@@ -164,17 +167,19 @@
 		 */
 		_stopEditing: function() {
 			if ( this.options.showToolbar ) {
-				this.buttons.children().hide();
+				this.buttons
+					.removeClass( 'editing' )
+					.children().hide();
+				
 				this.editButton.show();
 			}
 			
 			this.element.attr( 'contenteditable', 'false' );
 			this.options.saveOnBlur && $( document ).unbind( 'click', this.saveOnClickOutside );
-			this.element.blur();
 			
 			// Trigger callback/event
 			$.isFunction( this.options.stopEditing ) && this.options.stopEditing.call( this.element[ 0 ], this.element );
-			this.element.trigger( 'stopEditing' );
+			this.element.trigger( 'stopEditing' ).blur();
 		},
 		
 		_setContent: function( content ) {
