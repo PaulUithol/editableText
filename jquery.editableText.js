@@ -28,10 +28,12 @@
 			this.element = $( element );
 			this.options = options;
 			this.useMarkdown = options.enableMarkdown && window.Markdown && this.element.data( 'markdown' ) != null;
-			
+
+			// Set up a couple of proxy functions for functions that should stay bound to `this`
 			this.edit = $.proxy( this.edit, this );
 			this.save = $.proxy( this.save, this );
 			this.cancel = $.proxy( this.cancel, this );
+			this._saveOnClickOutside = $.proxy( this._saveOnClickOutside, this );
 			
 			//console.debug( 'element=%o, options=%o', this.element, this.options );
 			
@@ -45,9 +47,9 @@
 			}
 			
 			// Create edit/save buttons
-			this.buttons;
 			if ( options.showToolbar === 'after' || options.showToolbar === 'before' ) {
 				this.buttons = $( '<div>', { 'class': options.toolbarClass } );
+
 				options.showEdit && this.buttons.append( $( '<a>', { 'class': 'edit', href: '#', role: 'button', title: options.editTitle } ) );
 				options.showSave && this.buttons.append( $( '<a>', { 'class': 'save', href: '#', role: 'button', title: options.saveTitle } ) );
 				options.showCancel && this.buttons.append( $( '<a>', { 'class': 'cancel', href: '#', role: 'button', title: options.cancelTitle } ) );
@@ -56,7 +58,7 @@
 				var element = options.insertToolbarAt && $( options.insertToolbarAt ) || this.element;
 				element[ options.showToolbar ]( this.buttons );
 				
-				this.buttons.css( { 'zIndex': ( parseInt( this.element.css('zIndex'), 10 ) || 0 ) + 1 } );
+				this.buttons.css( { 'zIndex': ( parseInt( this.element.css( 'zIndex' ), 10 ) || 0 ) + 1 } );
 				
 				options.compensateTopMargin && this.buttons.css( { 'margin-top': this.element.css('margin-top') } );
 				
@@ -155,7 +157,7 @@
 			}
 			
 			this.element.attr( 'contenteditable', 'true' );
-			this.options.saveOnBlur && $( document ).bind( 'click', $.proxy( this._saveOnClickOutside, this ) );
+			this.options.saveOnBlur && $( document ).on( 'click', this._saveOnClickOutside );
 			
 			// Trigger callback/event
 			$.isFunction( this.options.startEditing ) && this.options.startEditing.call( this.element[ 0 ], this.element );
@@ -175,7 +177,7 @@
 			}
 			
 			this.element.attr( 'contenteditable', 'false' );
-			this.options.saveOnBlur && $( document ).unbind( 'click', this.saveOnClickOutside );
+			this.options.saveOnBlur && $( document ).off( 'click', this._saveOnClickOutside );
 			
 			// Trigger callback/event
 			$.isFunction( this.options.stopEditing ) && this.options.stopEditing.call( this.element[ 0 ], this.element );
