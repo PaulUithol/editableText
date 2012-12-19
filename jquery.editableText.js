@@ -155,6 +155,10 @@
 				
 				this.editButton.hide();
 			}
+
+			if ( !this.useMarkdown ) {
+				this.value = this.element.html();
+			}
 			
 			this.element.attr( 'contenteditable', 'true' );
 			this.options.saveOnBlur && $( document ).on( 'click', this._saveOnClickOutside );
