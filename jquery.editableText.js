@@ -37,7 +37,7 @@
 			
 			//console.debug( 'element=%o, options=%o', this.element, this.options );
 			
-			// 'this.value' is saved in 'startEditing', so we can restore the original content if editing is cancelled.
+			// 'this.value' is saved in 'startEditing', so we can restore the previous content if editing is cancelled.
 			this.value = this.element.html();
 			
 			if ( this.useMarkdown ) {
@@ -58,7 +58,10 @@
 				var element = options.insertToolbarAt && $( options.insertToolbarAt ) || this.element;
 				element[ options.showToolbar ]( this.buttons );
 				
-				this.buttons.css( { 'zIndex': ( parseInt( this.element.css( 'zIndex' ), 10 ) || 0 ) + 1 } );
+				this.buttons.css( {
+					'display': this.element.css( 'display' ),
+					'zIndex': ( parseInt( this.element.css( 'zIndex' ), 10 ) || 0 ) + 1
+				} );
 				
 				options.compensateTopMargin && this.buttons.css( { 'margin-top': this.element.css('margin-top') } );
 				
