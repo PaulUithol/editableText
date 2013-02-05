@@ -36,14 +36,18 @@
 			this._saveOnClickOutside = $.proxy( this._saveOnClickOutside, this );
 			
 			//console.debug( 'element=%o, options=%o', this.element, this.options );
-			
-			// 'this.value' is saved in 'startEditing', so we can restore the previous content if editing is cancelled.
-			this.value = this.element.html();
-			
+
+			// 'this.value' is stored so we can restore the previous content if editing is cancelled. Also saved
+			// in saved in 'startEditing', if not using Markdown. If using Markdown, converted strings should be avoided.
 			if ( this.useMarkdown ) {
+				this.value = this.element.text();
+
 				// Use 'getSanitizingConverter' if available; fall back to the regular converter.
 				this.converter = Markdown.getSanitizingConverter && Markdown.getSanitizingConverter() || new Markdown.Converter();
 				this._setContent( this.value );
+			}
+			else {
+				this.value = this.element.html();
 			}
 			
 			// Create edit/save buttons
@@ -55,15 +59,15 @@
 				options.showCancel && this.buttons.append( $( '<a>', { 'class': 'cancel', href: '#', role: 'button', title: options.cancelTitle } ) );
 				
 				// Insert the toolbar 'after' or 'before' the chosen element
-				var element = options.insertToolbarAt && $( options.insertToolbarAt ) || this.element;
-				element[ options.showToolbar ]( this.buttons );
+				var toolbarElem = options.insertToolbarAt && $( options.insertToolbarAt ) || this.element;
+				toolbarElem[ options.showToolbar ]( this.buttons );
 				
 				this.buttons.css( {
 					'display': this.element.css( 'display' ),
 					'zIndex': ( parseInt( this.element.css( 'zIndex' ), 10 ) || 0 ) + 1
 				} );
 				
-				options.compensateTopMargin && this.buttons.css( { 'margin-top': this.element.css('margin-top') } );
+				options.compensateTopMargin && this.buttons.css( { 'margin-top': this.element.css( 'margin-top' ) } );
 				
 				// Hide buttons; display only the 'edit' button by default
 				this.buttons.children().hide();
@@ -93,6 +97,10 @@
 			if ( this.element.attr( 'contenteditable' ) == null ) {
 				this.element.attr( 'contenteditable', 'false' );
 			}
+			// If the element already has 'contenteditable="true"', show the appropriate (edit) state
+			else if ( this.element.attr( 'contenteditable' ) === 'true' ) {
+				this._startEditing();
+			}
 		},
 		
 		/**
@@ -105,7 +113,6 @@
 			
 			ev && ev.preventDefault();
 			this._startEditing();
-			this.useMarkdown && this.element.html( this.value );
 		},
 		
 		/**
@@ -159,7 +166,11 @@
 				this.editButton.hide();
 			}
 
-			if ( !this.useMarkdown ) {
+			if ( this.useMarkdown ) {
+				// Restore the original (non-converted) Markdown from `this.value`
+				this.element.html( this.value );
+			}
+			else {
 				this.value = this.element.html();
 			}
 			
