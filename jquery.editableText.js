@@ -128,13 +128,22 @@
 			this._stopEditing();
 			var prevValue = this.value;
 			this.value = this.element.html();
-			this._setContent( this.value );
-			
+
 			// Strip trailing '<br>' from 'value'; seems to occur (at least in FF) when typing <space>,
 			// then <enter> (even when cancelling the keydown event).
 			if ( !this.options.newlinesEnabled && this.value.match( /<br>$/ ) ) {
 				this.value = this.value.substr( 0, this.value.length - 4 );
 			}
+
+			// For Markdown, convert line breaks (FF, Chrome) and closing div tags (Chrome) to line breaks.
+			// Strip other html tags.
+			if ( this.useMarkdown ) {
+				this.value = this.value.replace( /<br>|<\/div>/gi, '\n' );
+				// Strip remaining html tags
+				this.value = this.value.replace( /<(?:.|\n)*?>/gm, '' );
+			}
+
+			this._setContent( this.value );
 			
 			$.isFunction( this.options.change ) && this.options.change.call( this.element[ 0 ], this.element, this.value, prevValue );
 			this.element.trigger( 'change', [ this.value, prevValue ] );
@@ -168,7 +177,8 @@
 
 			if ( this.useMarkdown ) {
 				// Restore the original (non-converted) Markdown from `this.value`
-				this.element.html( this.value );
+				var content = this.value.replace( /\n/gi, '<br>' );
+				this.element.html( content );
 			}
 			else {
 				this.value = this.element.html();
@@ -203,7 +213,7 @@
 		},
 		
 		_setContent: function( content ) {
-			// When 'useMarkdown', replace all <br> by \n.
+			// For Markdown, replace all <br> by \n.
 			if ( this.useMarkdown ) {
 				this.element.html( this.converter.makeHtml( content.replace( /<br>/gi, '\n' ) ) );
 			}
