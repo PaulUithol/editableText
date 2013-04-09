@@ -9,7 +9,8 @@
  * Licensed under the MIT license (http://valums.com/mit-license/)
  */
 (function( $, undefined ){
-	
+	'use strict';
+
 	$.editableText = function() { return this.init.apply( this, arguments ); };
 	
 	$.editableText.prototype = {
@@ -240,10 +241,10 @@
 				.replace( /<\s*br[^>]*\/?\s*>|<\/div>|<\/p>/gi, '\n' )
 				// Strip remaining html tags
 				.replace( /<(?:.|\n)*?>/gm, '' )
-				// Remove newlines at the beginning of the text.
-				.replace( /^\n+/, '' )
-				// Remove newlines at the end of the text.
-				.replace( /\n+$/, '' );
+				// Remove whitespace at the beginning of the text.
+				.replace( /^\s+/, '' )
+				// Remove whitespace at the end of the text.
+				.replace( /\s+$/, '' );
 
 			return html;
 		}
@@ -342,9 +343,9 @@
 		// Try to parse as numeric entity. This is done before named entities for
 		// speed because associative array lookup in many JavaScript implementations
 		// is a linear search.
-		if ( n.substr( 0, 1 ) == '#' ) {
+		if ( n.substr( 0, 1 ) === '#' ) {
 			// Try to parse as numeric entity
-			if ( n.substr( 1, 1 ) == 'x' ) {
+			if ( n.substr( 1, 1 ) === 'x' ) {
 				// Try to parse as hexadecimal
 				code = parseInt( n.substr( 2 ), 16 );
 			}
