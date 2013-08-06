@@ -81,14 +81,19 @@
 			
 			// Bind on 'keydown' so we'll be first to handle keypresses, hopefully;
 			// for example, jQuery.ui.dialog closes the dialog on keydown for escape.
-			this.element.keydown( function( ev ) {
+			this.element.keydown( function( event ) {
 				// Save on enter, if not allowed to add newlines
-				if ( ev.keyCode === 13 && !options.newlinesEnabled ) {
-					dit.save( ev );
+				if ( event.keyCode === 13 ) {
+					if ( options.saveOnEnter && !options.newlinesEnabled ) {
+						dit.save( event );
+					}
+					else if ( !options.newlinesEnabled ) {
+						event.preventDefault();
+					}
 				}
 				// Cancel on escape
-				if ( ev.keyCode === 27 ) {
-					dit.cancel( ev );
+				if ( event.keyCode === 27 ) {
+					dit.cancel( event );
 				}
 			});
 			
@@ -176,11 +181,13 @@
 			}
 			
 			this.element.attr( 'contenteditable', 'true' );
-			this.options.saveOnBlur && $( document ).on( 'click', this._saveOnClickOutside );
 			
 			// Trigger callback/event
+			this.element.focus();
 			$.isFunction( this.options.startEditing ) && this.options.startEditing.call( this.element[ 0 ], this.element );
-			this.element.trigger( 'startEditing' ).focus();
+			this.element.trigger( 'startEditing' );
+
+			this.options.saveOnBlur && $( document ).on( 'click', this._saveOnClickOutside );
 		},
 		
 		/**
@@ -197,10 +204,11 @@
 			
 			this.element.attr( 'contenteditable', 'false' );
 			this.options.saveOnBlur && $( document ).off( 'click', this._saveOnClickOutside );
-			
+
 			// Trigger callback/event
+			this.element.blur();
 			$.isFunction( this.options.stopEditing ) && this.options.stopEditing.call( this.element[ 0 ], this.element );
-			this.element.trigger( 'stopEditing' ).blur();
+			this.element.trigger( 'stopEditing' );
 		},
 		
 		_setContent: function( content ) {
@@ -326,6 +334,10 @@
 		 * Whether or not 'blur' (focusing away from the editable, and the buttons) should trigger 'save'.
 		 */
 		saveOnBlur: true,
+		/**
+		 * Whether or not 'enter' should trigger 'save' (only when `newlineEnabled` is false)
+		 */
+		saveOnEnter: true,
 		/**
 		 * Callbacks. Fired when the value of the editable is changed, when editing is started, or when editing is stopped.
 		 */
