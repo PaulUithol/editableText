@@ -83,9 +83,16 @@
 			// for example, jQuery.ui.dialog closes the dialog on keydown for escape.
 			this.element.keydown( function( event ) {
 				// Save on enter, if not allowed to add newlines
-				if ( event.keyCode === 13 ) {
+				if ( event.keyCode === $.ui.keyCode.ENTER ) {
 					if ( options.saveOnEnter && !options.newlinesEnabled ) {
-						dit.save( event );
+						event.preventDefault();
+
+						// Defer executing the `save` until the keydown event has finished propagating.
+						// Doing it earlier make (for example) a jquery menu think it doesn't have an active item when
+						// it's also handling a keydown.
+						setTimeout( function() {
+							dit.save( event );
+						}, 0 );
 					}
 					else if ( !options.newlinesEnabled ) {
 						event.preventDefault();
@@ -130,7 +137,7 @@
 			}
 			
 			ev && ev.preventDefault();
-			ev && ev.stopImmediatePropagation();
+
 			this._stopEditing();
 			var prevValue = this.value;
 			this.value = this.element.html();
@@ -154,7 +161,7 @@
 			}
 			
 			ev && ev.preventDefault();
-			ev && ev.stopImmediatePropagation();
+
 			this._stopEditing();
 			this._setContent( this.value );
 		},
