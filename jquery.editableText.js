@@ -119,24 +119,27 @@
 		/**
 		 * 'Edit' action
 		 */
-		edit: function( ev ) {
+		edit: function( event ) {
 			if ( this.element.attr( 'contenteditable' ) === 'true' ) {
 				return;
 			}
+
+			this.editEvent = event;
 			
-			ev && ev.preventDefault();
+			event && event.preventDefault();
 			this._startEditing();
 		},
 		
 		/**
 		 * 'Save' action
 		 */
-		save: function( ev ) {
-			if ( this.element.attr( 'contenteditable' ) !== 'true' ) {
+		save: function( event ) {
+			// Prevent the click that started editing from triggering `save` right away
+			if ( this.element.attr( 'contenteditable' ) !== 'true' || this.editEvent.originalEvent === event.originalEvent ) {
 				return;
 			}
 			
-			ev && ev.preventDefault();
+			event && event.preventDefault();
 
 			this._stopEditing();
 			var prevValue = this.value;
@@ -155,12 +158,13 @@
 		/**
 		 * 'Cancel' action
 		 */
-		cancel: function( ev ) {
-			if ( this.element.attr( 'contenteditable' ) !== 'true' ) {
+		cancel: function( event ) {
+			// Prevent the click that started editing from triggering `cancel` right away
+			if ( this.element.attr( 'contenteditable' ) !== 'true' || this.editEvent.originalEvent === event.originalEvent ) {
 				return;
 			}
 			
-			ev && ev.preventDefault();
+			event && event.preventDefault();
 
 			this._stopEditing();
 			this._setContent( this.value );
@@ -231,10 +235,10 @@
 		/**
 		 * Trigger the 'save' function when the user clicks outside of both the 'editable', and outside of the 'buttons'.
 		 */
-		_saveOnClickOutside: function( ev ) {
-			var target = $( ev.target );
+		_saveOnClickOutside: function( event ) {
+			var target = $( event.target );
 			if ( !target.closest( this.element ).length && !target.closest( this.buttons ).length ) {
-				this.save( ev );
+				this.save( event );
 			}
 		},
 
