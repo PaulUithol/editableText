@@ -135,7 +135,8 @@
 		 */
 		save: function( event ) {
 			// Prevent the click that started editing from triggering `save` right away
-			if ( this.element.attr( 'contenteditable' ) !== 'true' || this.editEvent.originalEvent === event.originalEvent ) {
+			if ( this.element.attr( 'contenteditable' ) !== 'true' ||
+					( this.editEvent && event && this.editEvent.originalEvent === event.originalEvent ) ) {
 				return;
 			}
 			
@@ -160,7 +161,8 @@
 		 */
 		cancel: function( event ) {
 			// Prevent the click that started editing from triggering `cancel` right away
-			if ( this.element.attr( 'contenteditable' ) !== 'true' || this.editEvent.originalEvent === event.originalEvent ) {
+			if ( this.element.attr( 'contenteditable' ) !== 'true' ||
+					( this.editEvent && event && this.editEvent.originalEvent === event.originalEvent ) ) {
 				return;
 			}
 			
