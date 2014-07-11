@@ -79,32 +79,16 @@
 				this.buttons.find('.cancel').click( this.cancel );
 			}
 			
-			// Bind on 'keydown' so we'll be first to handle keypresses, hopefully;
+			// Bind on 'keydown' directly so we'll be first to handle keypresses, hopefully;
 			// for example, jQuery.ui.dialog closes the dialog on keydown for escape.
-			this.element.keydown( function( event ) {
-				// Save on enter, if not allowed to add newlines
-				if ( event.keyCode === $.ui.keyCode.ENTER ) {
-					if ( options.saveOnEnter && !options.newlinesEnabled ) {
-						event.preventDefault();
+			this.element.keydown( this._handleKeydown );
 
-						// Defer executing the `save` until the keydown event has finished propagating.
-						// Doing it earlier make (for example) a jquery menu think it doesn't have an active item when
-						// it's also handling a keydown.
-						setTimeout( function() {
-							dit.save( event );
-						}, 0 );
-					}
-					else if ( !options.newlinesEnabled ) {
-						event.preventDefault();
-					}
-				}
-				// Cancel on escape
-				if ( event.keyCode === 27 ) {
-					dit.cancel( event );
-				}
-			});
-			
-			options.editOnDblClick && this.element.dblclick( this.edit );
+			if ( options.editOnClick ) {
+				this.element.on( 'click.editableText', this.edit );
+			}
+			else if ( options.editOnDblClick ) {
+				this.element.on( 'dblclick.editableText', this.edit );
+			}
 			
 			// Add the contenteditable attribute to element
 			if ( this.element.attr( 'contenteditable' ) == null ) {
@@ -171,6 +155,13 @@
 			this._stopEditing();
 			this._setContent( this.value );
 		},
+
+		destroy: function( event ) {
+			this.buttons.remove();
+			this.element.removeAttr( 'contenteditable' );
+			this.element.off( '.editableText' );
+			this.element.removeData( '$.editableText' );
+		},
 		
 		/**
 		 * Makes element editable
@@ -231,6 +222,31 @@
 			}
 			else {
 				this.element.html( content );
+			}
+		},
+
+		_handleKeydown: function( event ) {
+			var dit = this;
+
+			// Save on enter, if not allowed to add newlines
+			if ( event.keyCode === $.ui.keyCode.ENTER ) {
+				if ( this.options.saveOnEnter && !this.options.newlinesEnabled ) {
+					event.preventDefault();
+
+					// Defer executing the `save` until the keydown event has finished propagating.
+					// Doing it earlier make (for example) a jquery menu think it doesn't have an active item when
+					// it's also handling a keydown.
+					setTimeout( function() {
+						dit.save( event );
+					}, 0 );
+				}
+				else if ( !this.options.newlinesEnabled ) {
+					event.preventDefault();
+				}
+			}
+			// Cancel on escape
+			if ( event.keyCode === 27 ) {
+				this.cancel( event );
 			}
 		},
 		
@@ -340,6 +356,10 @@
 		saveTitle: 'Save',
 		cancelTitle: 'Discard',
 		/**
+		 * Whether or not a single 'click' should trigger 'edit'.
+		 */
+		editOnClick: false,
+		/**
 		 * Whether or not 'dblclick' should trigger 'edit'.
 		 */
 		editOnDblClick: true,
@@ -390,11 +410,11 @@
 	}
 
 	var ENTITIES_MAP = {
+		'nbsp': 32,
 		'quot' : 34,
 		'amp' : 38,
 		'lt' : 60,
 		'gt' : 62,
-		'nbsp' : 160,
 		'iexcl' : 161,
 		'cent' : 162,
 		'pound' : 163,
