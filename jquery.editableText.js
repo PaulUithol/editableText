@@ -35,6 +35,7 @@
 			this.save = $.proxy( this.save, this );
 			this.cancel = $.proxy( this.cancel, this );
 			this._saveOnClickOutside = $.proxy( this._saveOnClickOutside, this );
+			this._handleKeydown = $.proxy( this._handleKeydown, this );
 			
 			//console.debug( 'element=%o, options=%o', this.element, this.options );
 
