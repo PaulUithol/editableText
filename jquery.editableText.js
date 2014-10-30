@@ -192,7 +192,7 @@
 			$.isFunction( this.options.startEditing ) && this.options.startEditing.call( this.element[ 0 ], this.element );
 			this.element.trigger( 'startEditing' );
 
-			this.options.saveOnBlur && $( document ).on( 'click', this._saveOnClickOutside );
+			this.options.saveOnBlur && $( document ).on( 'mousedown', this._saveOnClickOutside );
 		},
 		
 		/**
@@ -208,7 +208,7 @@
 			}
 			
 			this.element.attr( 'contenteditable', 'false' );
-			this.options.saveOnBlur && $( document ).off( 'click', this._saveOnClickOutside );
+			this.options.saveOnBlur && $( document ).off( 'mousedown', this._saveOnClickOutside );
 
 			// Trigger callback/event
 			this.element.blur();
