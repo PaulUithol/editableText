@@ -105,7 +105,11 @@
 		 * 'Edit' action
 		 */
 		edit: function( event ) {
-			if ( this.element.attr( 'contenteditable' ) === 'true' ) {
+			// Don't move into edit mode if a) we already are, or b) we're in single-click mode,
+			// and we've clicked a link in the editable area.
+			var target = $( event.target );
+			if ( this.element.attr( 'contenteditable' ) === 'true' ||
+					( this.options.editOnClick && target.is( 'a' ) && target.closest( this.element ).length ) ) {
 				return;
 			}
 
